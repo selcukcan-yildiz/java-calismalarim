@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-card h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 0.9em;
+      text-transform: uppercase;
+    }
+
+    .stat-card .value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .exercise-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .exercise-item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s;
+    }
+
+    .exercise-item:hover {
+      background: #e9ecef;
+    }
+
+    .exercise-info {
+      flex: 1;
+    }
+
+    .exercise-info h4 {
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .exercise-info p {
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .exercise-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-delete {
+      background: #dc3545;
+      padding: 8px 15px;
+      font-size: 0.9em;
+    }
+
+    .workout-history {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .workout-item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .workout-item h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .workout-exercises {
+      margin-left: 15px;
+    }
+
+    .workout-exercise {
+      padding: 5px 0;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #667eea;
+      border-radius: 10px;
+    }
+
+    .date-input {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💪 Fitness Tracker</h1>
+      <p>Antrenmanlarınızı takip edin ve hedeflerinize ulaşın</p>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Toplam Antrenman</h3>
+        <div class="value" id="total-workouts">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Toplam Egzersiz</h3>
+        <div class="value" id="total-exercises">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Bu Hafta</h3>
+        <div class="value" id="week-workouts">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Toplam Set</h3>
+        <div class="value" id="total-sets">0</div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="card">
+        <h2>Yeni Egzersiz Ekle</h2>
+        <form id="exercise-form">
+          <div class="form-group">
+            <label for="exercise-name">Egzersiz Adı</label>
+            <input type="text" id="exercise-name" placeholder="Örn: Bench Press" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sets">Set</label>
+              <input type="number" id="sets" min="1" placeholder="3" required>
+            </div>
+            <div class="form-group">
+              <label for="reps">Tekrar</label>
+              <input type="number" id="reps" min="1" placeholder="10" required>
+            </div>
+            <div class="form-group">
+              <label for="weight">Ağırlık (kg)</label>
+              <input type="number" id="weight" min="0" step="0.5" placeholder="60" required>
+            </div>
+          </div>
+          <button type="submit">Egzersiz Ekle</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Bugünkü Egzersizler</h2>
+        <div class="exercise-list" id="exercise-list">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 6L9 17l-5-5"></path>
+            </svg>
+            <p>Henüz egzersiz eklenmedi</p>
+          </div>
+        </div>
+        <div style="margin-top: 15px;">
+          <button id="save-workout-btn" style="display: none;">Antrenmanı Kaydet</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Antrenman Geçmişi</h2>
+      <div class="workout-history" id="workout-history">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <p>Henüz antrenman kaydı yok</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Verileri localStorage'da sakla
+    let currentExercises = [];
+    let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
+
+    // DOM elementleri
+    const exerciseForm = document.getElementById('exercise-form');
+    const exerciseList = document.getElementById('exercise-list');
+    const workoutHistoryDiv = document.getElementById('workout-history');
+    const saveWorkoutBtn = document.getElementById('save-workout-btn');
+
+    // İstatistikleri güncelle
+    function updateStats() {
+      document.getElementById('total-workouts').textContent = workoutHistory.length;
+      
+      let totalExercises = 0;
+      let totalSets = 0;
+      workoutHistory.forEach(workout => {
+        totalExercises += workout.exercises.length;
+        workout.exercises.forEach(ex => {
+          totalSets += ex.sets;
+        });
+      });
+      document.getElementById('total-exercises').textContent = totalExercises;
+      document.getElementById('total-sets').textContent = totalSets;
+
+      // Bu hafta
+      const now = new Date();
+      const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
+      const weekWorkouts = workoutHistory.filter(w => {
+        const workoutDate = new Date(w.date);
+        return workoutDate >= weekStart;
+      }).length;
+      document.getElementById('week-workouts').textContent = weekWorkouts;
+    }
+
+    // Egzersiz listesini göster
+    function renderExercises() {
+      if (currentExercises.length === 0) {
+        exerciseList.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 6L9 17l-5-5"></path>
+            </svg>
+            <p>Henüz egzersiz eklenmedi</p>
+          </div>
+        `;
+        saveWorkoutBtn.style.display = 'none';
+      } else {
+        exerciseList.innerHTML = currentExercises.map((ex, index) => `
+          <div class="exercise-item">
+            <div class="exercise-info">
+              <h4>${ex.name}</h4>
+              <p>${ex.sets} set × ${ex.reps} tekrar × ${ex.weight} kg</p>
+            </div>
+            <div class="exercise-actions">
+              <button class="btn-delete" onclick="removeExercise(${index})">Sil</button>
+            </div>
+          </div>
+        `).join('');
+        saveWorkoutBtn.style.display = 'block';
+      }
+    }
+
+    // Antrenman geçmişini göster
+    function renderWorkoutHistory() {
+      if (workoutHistory.length === 0) {
+        workoutHistoryDiv.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <p>Henüz antrenman kaydı yok</p>
+          </div>
+        `;
+      } else {
+        workoutHistoryDiv.innerHTML = workoutHistory.slice().reverse().map(workout => {
+          const date = new Date(workout.date);
+          const dateStr = date.toLocaleDateString('tr-TR', { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          return `
+            <div class="workout-item">
+              <h4>${dateStr}</h4>
+              <div class="workout-exercises">
+                ${workout.exercises.map(ex => `
+                  <div class="workout-exercise">
+                    <strong>${ex.name}</strong> - ${ex.sets} set × ${ex.reps} tekrar × ${ex.weight} kg
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Egzersiz ekle
+    exerciseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const exercise = {
+        name: document.getElementById('exercise-name').value,
+        sets: parseInt(document.getElementById('sets').value),
+        reps: parseInt(document.getElementById('reps').value),
+        weight: parseFloat(document.getElementById('weight').value)
+      };
+
+      currentExercises.push(exercise);
+      renderExercises();
+      exerciseForm.reset();
+    });
+
+    // Egzersiz sil
+    window.removeExercise = function(index) {
+      currentExercises.splice(index, 1);
+      renderExercises();
+    };
+
+    // Antrenmanı kaydet
+    saveWorkoutBtn.addEventListener('click', () => {
+      if (currentExercises.length === 0) return;
+
+      const workout = {
+        date: new Date().toISOString(),
+        exercises: [...currentExercises]
+      };
+
+      workoutHistory.push(workout);
+      localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+      
+      currentExercises = [];
+      renderExercises();
+      renderWorkoutHistory();
+      updateStats();
+      
+      alert('Antrenman başarıyla kaydedildi! 🎉');
+    });
+
+    // Sayfa yüklendiğinde
+    renderExercises();
+    renderWorkoutHistory();
+    updateStats();
+  </script>
+</body>
+</html>

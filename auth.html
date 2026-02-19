@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Giriş / Kayıt Ol</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    }
+    .card {
+      background: #fff;
+      padding: 24px 28px 28px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+      width: 100%;
+      max-width: 360px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      text-align: center;
+      color: #333;
+    }
+    .field {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+      color: #555;
+    }
+    input {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus {
+      border-color: #4e54c8;
+      box-shadow: 0 0 0 2px rgba(78,84,200,0.15);
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #4e54c8;
+      color: white;
+      transition: background 0.2s, transform 0.05s;
+    }
+    button:hover {
+      background: #3f44ad;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .link-btn {
+      background: transparent;
+      color: #4e54c8;
+      margin-top: 6px;
+    }
+    .link-btn:hover {
+      background: rgba(78,84,200,0.06);
+    }
+    .small-text {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .message {
+      margin-top: 10px;
+      font-size: 13px;
+      text-align: center;
+      min-height: 18px;
+    }
+    .message.error { color: #d32f2f; }
+    .message.success { color: #2e7d32; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Giriş Formu -->
+    <div id="login-form">
+      <h2>Giriş Yap</h2>
+      <div class="field">
+        <label for="login-username">Kullanıcı Adı</label>
+        <input id="login-username" type="text" placeholder="Kullanıcı adınız" />
+      </div>
+      <div class="field">
+        <label for="login-password">Şifre</label>
+        <input id="login-password" type="password" placeholder="Şifreniz" />
+      </div>
+      <button id="login-button">Giriş Yap</button>
+      <div class="small-text">
+        Kullanıcı bulunamazsa aşağıdan kayıt olabilirsiniz.
+      </div>
+      <button class="link-btn" id="go-register">Kayıt Ol</button>
+      <div id="login-message" class="message"></div>
+    </div>
+
+    <!-- Kayıt Formu -->
+    <div id="register-form" class="hidden">
+      <h2>Kayıt Ol</h2>
+      <div class="field">
+        <label for="reg-name">Ad</label>
+        <input id="reg-name" type="text" placeholder="Adınız" />
+      </div>
+      <div class="field">
+        <label for="reg-surname">Soyad</label>
+        <input id="reg-surname" type="text" placeholder="Soyadınız" />
+      </div>
+      <div class="field">
+        <label for="reg-username">Kullanıcı Adı</label>
+        <input id="reg-username" type="text" placeholder="Kullanıcı adı seçin" />
+      </div>
+      <div class="field">
+        <label for="reg-password">Şifre</label>
+        <input id="reg-password" type="password" placeholder="Şifre seçin" />
+      </div>
+      <button id="register-button">Kayıt Ol</button>
+      <button class="link-btn" id="go-login">Zaten hesabım var</button>
+      <div id="register-message" class="message"></div>
+    </div>
+  </div>
+
+  <script>
+    // Basit örnek: Kullanıcı bilgilerini geçici olarak hafızada tutacağız
+    let savedUser = null;
+
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+
+    const loginUsername = document.getElementById('login-username');
+    const loginPassword = document.getElementById('login-password');
+    const loginMessage = document.getElementById('login-message');
+
+    const regName = document.getElementById('reg-name');
+    const regSurname = document.getElementById('reg-surname');
+    const regUsername = document.getElementById('reg-username');
+    const regPassword = document.getElementById('reg-password');
+    const registerMessage = document.getElementById('register-message');
+
+    document.getElementById('go-register').addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+      loginMessage.textContent = '';
+    });
+
+    document.getElementById('go-login').addEventListener('click', () => {
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      registerMessage.textContent = '';
+    });
+
+    document.getElementById('register-button').addEventListener('click', () => {
+      registerMessage.textContent = '';
+      registerMessage.className = 'message';
+
+      if (!regName.value || !regSurname.value || !regUsername.value || !regPassword.value) {
+        registerMessage.textContent = 'Lütfen tüm alanları doldurun.';
+        registerMessage.classList.add('error');
+        return;
+      }
+
+      savedUser = {
+        name: regName.value,
+        surname: regSurname.value,
+        username: regUsername.value,
+        password: regPassword.value
+      };
+
+      registerMessage.textContent = 'Kayıt başarılı! Artık giriş yapabilirsiniz.';
+      registerMessage.classList.add('success');
+
+      // Giriş formunu doldurmayı kolaylaştırmak için kullanıcı adını taşıyalım
+      loginUsername.value = savedUser.username;
+
+      setTimeout(() => {
+        registerForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+        registerMessage.textContent = '';
+      }, 1500);
+    });
+
+    document.getElementById('login-button').addEventListener('click', () => {
+      loginMessage.textContent = '';
+      loginMessage.className = 'message';
+
+      if (!loginUsername.value || !loginPassword.value) {
+        loginMessage.textContent = 'Kullanıcı adı ve şifre girin.';
+        loginMessage.classList.add('error');
+        return;
+      }
+
+      if (!savedUser || loginUsername.value !== savedUser.username) {
+        loginMessage.textContent = 'Kullanıcı bulunamadı. Lütfen kayıt olun.';
+        loginMessage.classList.add('error');
+        return;
+      }
+
+      if (loginPassword.value !== savedUser.password) {
+        loginMessage.textContent = 'Şifre yanlış.';
+        loginMessage.classList.add('error');
+        return;
+      }
+
+      loginMessage.textContent = `Hoş geldin ${savedUser.name} ${savedUser.surname}!`;
+      loginMessage.classList.add('success');
+    });
+  </script>
+</body>
+</html>
+
